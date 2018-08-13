@@ -1,0 +1,29 @@
+<h1>Загрузки</h1>
+<p class="pull-right">Здравствуйте, {{currentUser.email}}! <a [routerLink]="['/users/login']">Выйти</a></p>
+
+<input #file type="file" multiple (change)="upload(file.files)" />
+<br/>
+<span style="font-weight:bold;color:green;" *ngIf="progress > 0 && progress < 100">
+  {{progress}}%
+</span>
+
+
+<p *ngIf="!uploads"><em>Загрузка...</em></p>
+<table class='table' *ngIf="uploads">
+  <thead>
+    <tr>
+      <th>Название</th>
+      <th>Дата</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let upload of uploads">
+      <td>{{ upload.name }}</td>
+      <td>{{upload.date | date: 'dd/MM/yyyy'}}</td>
+      <td>
+        <a href="/api/uploads/{{upload.id}}" target=_blank class="btn btn-primary">Скачать</a>
+        <a (click)="delete(upload.id)" class="btn btn-danger">Удалить</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
