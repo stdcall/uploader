@@ -27,10 +27,10 @@ namespace helloworld.Services
 
         public IEnumerable<Upload> ForOwner(int uid)
         {
-            //return _context.Uploads.Where(x => x.Owner == uid);
-            var user = _context.Users.Find(uid);
-            _context.Entry(user).Collection(u => u.Uploads).Load();
-            return  user.Uploads;
+            return _context.Uploads.Where(x => x.Owner == uid);
+            //var user = _context.Users.Find(uid);
+            //_context.Entry(user).Collection(u => u.Uploads).Load();
+            //return  user.Uploads;
         }
         public Upload Create(string fname, byte[] file, int owner)
         {
