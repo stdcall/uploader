@@ -10,7 +10,7 @@ namespace helloworld.Services
     public interface IUploadService
     {
         Upload Create(string fname, byte[] file, int owner);
-        void Download(int id, out string fname, out byte[] file);
+        (string, byte[]) Download(int id);
         void Delete(int id, int uid);
         IEnumerable<Upload> ForOwner(int uid);
     }
@@ -47,20 +47,18 @@ namespace helloworld.Services
             
             return upload;
         }
-        public void Download(int id, out string fname, out byte[] file)
+        public (string, byte[]) Download(int id)
         {
             var upload = _context.Uploads.Find(id);
-            if (upload == null) throw new AppException("File doesn't exist.");
-            fname = upload.Name;
-            if (upload.Blob != null)
-            {
-                file = upload.Blob; 
-            }
-            else
-            {
-                file = _context.Uploads.First(x => 
-                x.Blob != null && upload.Sha256.SequenceEqual(x.Sha256)).Blob; 
-            }  
+ 
+            var name = upload != null ? upload.Name : 
+                throw new AppException("File doesn't exist.");;
+ 
+            var file  = upload.Blob != null ? upload.Blob : 
+                _context.Uploads.First(x => 
+                    x.Blob != null && upload.Sha256.SequenceEqual(x.Sha256)).Blob;
+           
+            return (name, file);
         }
         public void Delete(int id, int uid)
         {

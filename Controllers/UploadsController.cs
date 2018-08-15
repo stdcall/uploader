@@ -67,15 +67,14 @@ namespace helloworld.controllers
                 return BadRequest(new { message = ex.Message});
             }
         }
+
         [AllowAnonymous]
         [HttpGet("{id}")]
         public FileResult DownloadFile(int id)
         {
             try 
             {
-                byte[] blob;
-                string fname;
-                _uploadService.Download(id, out fname, out blob);
+                var (fname, blob) = _uploadService.Download(id);
                 return File(blob, "application/x-msdownload", fname);
             }
             catch(AppException)
@@ -83,6 +82,7 @@ namespace helloworld.controllers
                 return null;
             }
         }
+        
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
