@@ -25,13 +25,9 @@ namespace helloworld.Services
             _csp = new SHA512CryptoServiceProvider();
         }
 
-        public IEnumerable<Upload> ForOwner(int uid)
-        {
-            return _context.Uploads.Where(x => x.Owner == uid);
-            //var user = _context.Users.Find(uid);
-            //_context.Entry(user).Collection(u => u.Uploads).Load();
-            //return  user.Uploads;
-        }
+        public IEnumerable<Upload> ForOwner(int uid) =>
+          _context.Uploads.Where(x => x.Owner == uid);
+      
         public Upload Create(string fname, byte[] file, int owner)
         {
             Random rnd = new Random();
