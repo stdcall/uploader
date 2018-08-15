@@ -50,7 +50,7 @@ namespace helloworld.Services
         public void Download(int id, out string fname, out byte[] file)
         {
             var upload = _context.Uploads.Find(id);
-            if (upload == null) throw new AppException("Файла не существует.");
+            if (upload == null) throw new AppException("File doesn't exist.");
             fname = upload.Name;
             if (upload.Blob != null)
             {

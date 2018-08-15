@@ -46,7 +46,7 @@ namespace helloworld.Services
                 throw new AppException("Password is required");
 
             if (_context.Users.Any(x => x.Email == user.Email))
-                throw new AppException("Email \"" + user.Email + "\" is already registered");
+                throw new AppException($"Email {user.Email} is already registered");
 
             (user.Password, user.Salt) = CreatePasswordHash(password);
             _context.Users.Add(user);
