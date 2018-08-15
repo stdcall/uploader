@@ -6,7 +6,7 @@ using helloworld.Helpers;
 using System.Security.Cryptography;
 namespace helloworld.Services
 {
-    public interface IUserService 
+    public interface IUserService
     {
         User Create(User user, string password);
         User GetById(int id);
@@ -29,63 +29,54 @@ namespace helloworld.Services
 
             var user = _context.Users.SingleOrDefault(x => x.Email == email);
 
-            // check if username exists
             if (user == null)
                 return null;
 
-            // check if password is correct
             if (!VerifyPasswordHash(password, user.Password, user.Salt))
                 return null;
-            // authentication successful
+            
             return user;
         }
 
-        public User GetById(int id)
-        {
-            return _context.Users.Find(id);
-        }
+        public User GetById(int id) => _context.Users.Find(id);
 
         public User Create(User user, string password)
         {
-            // validation
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
             if (_context.Users.Any(x => x.Email == user.Email))
                 throw new AppException("Email \"" + user.Email + "\" is already registered");
 
-            byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(password, out passwordHash, out passwordSalt);
-
-            user.Password = passwordHash;
-            user.Salt = passwordSalt;
-
+            (user.Password, user.Salt) = CreatePasswordHash(password);
             _context.Users.Add(user);
             _context.SaveChanges();
 
             return user;
         }
 
-       private static void CreatePasswordHash(string pwd, out byte[] pwdHash, out byte[] pwdSalt)
+       private static (byte[] pwdHash, byte[] pwdSalt) CreatePasswordHash(string pwd)
         {
-            if (string.IsNullOrWhiteSpace(pwd)) 
+            if (string.IsNullOrWhiteSpace(pwd))
                 throw new ArgumentException("Value cannot be empty.", "password");
 
-            var hmac = new HMACSHA512();
-            pwdSalt = hmac.Key;
-            pwdHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pwd));        
+            using (var hmac = new HMACSHA512()) 
+            {
+                return (hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pwd)), hmac.Key);
+            }
         }
 
-        private static bool VerifyPasswordHash(string pwd, byte[] Hash, byte[] Salt)
+        private static bool VerifyPasswordHash(string pwd, byte[] hash, byte[] salt)
         {
-            if (string.IsNullOrWhiteSpace(pwd)) 
+            if (string.IsNullOrWhiteSpace(pwd))
                 throw new ArgumentException("Value cannot be empty.", "password");
 
-            var hmac = new HMACSHA512(Salt);
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pwd));
-            return computedHash.SequenceEqual(Hash);
+            using (var hmac = new HMACSHA512(salt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(pwd));
+                return computedHash.SequenceEqual(hash);
+            }
         }
 
     }
 }
-
